@@ -1,3 +1,5 @@
+> 转自https://mp.weixin.qq.com/s/wgDcFiuMamttACxKGt2rHw
+
 ## 1.判定定义为String类型的st1和st2是否相等
 ```java
 package string;
