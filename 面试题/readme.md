@@ -11,6 +11,10 @@
 
 ### [搜索引擎工作原理](../面试题/百度搜索为什么那么快.md)
 
-### [MySQL使用int型存储ip地址]
+### MySQL
+- [MySQL使用int型存储ip地址](../面试题/MySQL存储ip地址.md)
+- [经典50题](https://mp.weixin.qq.com/s/CUU9KwS38EBVCDLYVXZIHg)
 
-### [常见面试题10道](../面试题/10道常考面试题.md)
+### 试题
+- [常见面试题10道](../面试题/10道常考面试题.md)
+- [一百面试题汇总](https://mp.weixin.qq.com/s/7_nCIUyLwrHQWIVmo8jv_w)
