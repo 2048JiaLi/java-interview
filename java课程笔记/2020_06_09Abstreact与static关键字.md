@@ -59,7 +59,7 @@ class Dog extends Animal{
 
 ![](./image/静态属性.png)
 
-## 什么是静态
+### 什么是静态
 - 概念
   - 静态（static）可以修饰属性和方法
   - 称为静态属性（类属性）、静态方法（类方法）
@@ -103,3 +103,114 @@ class Student{
 * invokestatic 调用静态方法
 * invokevirtual 调用虚拟方法（父类定义的，日后被子类覆盖的方法）
 * invokedynamic 调用动态链接方法
+
+### 类加载
+- JVM首次使用某个类时，需通过CLASSPATH查找该类的.class文件
+
+- 将.class文件中对类的描述信息加载到内存中，进行保存
+  - 如：包名、类名、父类、属性、方法、构造方法
+
+- 加载时机：
+  - 创建对象
+  - 创建子类对象
+  - 访问静态属性
+  - 调用静态方法
+
+![](./image/静态代码块.png)
+
+### 执行顺序
+
+```java
+public class Test{
+    public static void main(String[] args){
+        new Super();
+
+        new Sub();
+    }
+}
+
+class Super{
+    static String staticField = "父类静态属性";
+
+    static {
+        System.out.println(staticField);
+        System.out.println("父类静态代码块");
+    }
+
+    String instanceField = "父类实例属性";
+
+    {
+        System.out.println(instanceField);
+        System.out.println("父类实例代码块");
+    }
+
+    public Super(){
+        System.out.println("父类构造方法");
+    }
+}
+
+class Sub extends Super{
+    static String staticField2 = "子类静态属性";
+
+    static {
+        System.out.println(staticField2);
+        System.out.println("子类静态代码块");
+    }
+
+    String instanceField2 = "子类实例属性";
+
+    {
+        System.out.println(instanceField2);
+        System.out.println("子类实例代码块");
+    }
+
+    public Sub(){
+        System.out.println("子类构造方法");
+    }
+}
+```
+
+>> 注意以下执行结果的输出顺序
+
+* `new Super()`
+```
+父类静态属性
+父类静态代码块
+父类实例属性
+父类实例代码块
+父类构造方法
+```
+
+* `new Sub()`时
+```
+父类静态属性
+父类静态代码块
+子类静态属性
+子类静态代码块
+父类实例属性
+父类实例代码块
+父类构造方法
+子类实例属性
+子类实例代码块
+子类构造方法
+```
+
+* `new Sub();new Sub();` 两次new Sub()，静态属性和代码块也只执行一次
+```
+父类静态属性
+父类静态代码块
+子类静态属性
+子类静态代码块
+父类实例属性
+父类实例代码块
+父类构造方法
+子类实例属性
+子类实例代码块
+子类构造方法
+父类实例属性
+父类实例代码块
+父类构造方法
+子类实例属性
+子类实例代码块
+子类构造方法
+```
