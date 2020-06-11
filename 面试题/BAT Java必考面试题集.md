@@ -21,3 +21,35 @@ rload）实现的是编译时的多态性（也称为前绑定），而方法重
 ## 4、float f=3.4;是否正确?
 答:不正确。3.4 是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换`float f =(float)3.4;` 或者写成`float f =3.4F;`。
 > 注：在java里面，没小数点的默认是int,有小数点的默认是 double;
+
+
+## 作用域public,private,protected,以及不写时default的区别
+
+| 作用域| 	当前类|	同包|	子孙类|	其他|
+|-|-|-|-|-|
+|public| √| √| √| √|
+|protected| √|	   √|    √| ×|
+|default| √| √| ×| ×|
+|private| √| ×| ×| ×|
+
+## Java 有没有goto? 
+goto 是java 中的保留字，现在没有在java 中使用。
+
+## int 和Integer 有什么区别? 
+答：Java 提供两种不同的类型：引用类型和基本类型（或内置类型）；
+`int` 是java 的基本数据类型，`Integer` 是java 为`int` 提供的封装类。
+
+Java 为每个原始类型提供了封装类：
+- 原始类型: `boolean,char,byte,short,int,long,float,double`
+- 封装类型：`Boolean，Character，Byte，Short，Integer，Long，Float，Double`
+
+引用类型和原始类型的行为完全不同，并且它们具有不同的语义。引用类型和原始类型具有不同的特征和用法，它们包括：大小和速度问题，这种类型以哪种类型的数据结构存储，当引用类型和原始类型用作某个类的实例数据时所指定的缺省值。对象引用实例变量的缺省值为null，而原始类型实例变量的缺省值与它们的类型有关。
+
+## &和&&的区别？
+答：`&`是位运算符，表示按位与运算，`&&`是逻辑运算符，表示逻辑与（and）。 注意`A&&B`条件，若A不成立，B不会进行判断
+
+## String 和StringBuffer 的区别? 
+答：JAVA 平台提供了两个类：`String` 和`StringBuffer`，它们可以储存和操作字符串，即包含多个字符的字符数据。这个`String `类提供了数值**不可改变**的字符串。而这个StringBuffer 类提供的**字符串进行修改**。当你知道字符数据要改变的时候你就可以使用StringBuffer。典型地，你可以使用StringBuffers 来动态构造字符数据。
+
+## 描述一下JVM 加载class 文件的原理机制? 
+答：JVM 中类的装载是由ClassLoader 和它的子类来实现的,Java ClassLoader是一个重要的Java 运行时系统组件。它负责在运行时查找和装入类文件的类。
