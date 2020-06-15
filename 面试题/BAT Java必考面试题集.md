@@ -53,3 +53,109 @@ Java 为每个原始类型提供了封装类：
 
 ## 描述一下JVM 加载class 文件的原理机制? 
 答：JVM 中类的装载是由ClassLoader 和它的子类来实现的,Java ClassLoader是一个重要的Java 运行时系统组件。它负责在运行时查找和装入类文件的类。
+
+> https://mp.weixin.qq.com/s/lVdCsIuQ6UAvOhaAlXrWuA
+
+## Java有没有goto
+goto 是Java中的保留字，在目前版本的Java中没有使用。（根据James Gosling（Java 之父）编写的《The Java Programming Language》一书的附录中给出了一个 Java 关键字列表，其中有 goto 和 const，但是这两个是目前无法使用的关键字，因此有些地方将其称之为保留字，其实保留字这个词应该有更广泛的意义，因为熟悉 C 语言的程序员都知道，在系统类库中使用过的
+有特殊意义的单词或单词的组合都被视为保留字）
+
+## 包装类的自动装箱拆箱相关
+```java
+public class Test{
+
+    public static void main(String[] args){
+
+        Integer f1 = 100;  // jdk5之后提供基本类型的自动装箱与拆箱
+        Integer f2 = 100;
+        Integer f3 = 100;
+        Integer f4 = 100;
+
+        System.out.println(f1 == f2);
+        System.out.println(f3 == f4);
+    }
+}
+```
+输出:
+```java
+true
+false
+```
+
+首先需要注意的是f1、 f2、f3、f4四个变量都是 `Integer` 对象，所以下面的==运算比较的不是值而是引用。装箱的本质是什么呢？当我们给一个 `Integer` 对象赋一个`int`值的时候，会调用`Integer` 类的静态方法`valueOf`，如果看看`valueOf` 的源代码就知道发生了什么。
+
+```java
+public static Integer valueOf(int i){
+
+    if (i >= IntegerCache.low && i <= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+
+    return new Integer(i);
+}
+```
+`IntegerCache` 是`Integer` 的内部类，其代码如下所示：
+```java
+    private static class IntegerCache {
+        static final int low = -128;
+        static final int high;
+        static final Integer cache[];
+
+        static {
+            // high value may be configured by property
+            int h = 127;
+            String integerCacheHighPropValue =
+                sun.misc.VM.getSavedProperty("java.lang.Integer.IntegerCache.high");
+            if (integerCacheHighPropValue != null) {
+                try {
+                    int i = parseInt(integerCacheHighPropValue);
+                    i = Math.max(i, 127);
+                    // Maximum array size is Integer.MAX_VALUE
+                    h = Math.min(i, Integer.MAX_VALUE - (-low) -1);
+                } catch( NumberFormatException nfe) {
+                    // If the property cannot be parsed into an int, ignore it.
+                }
+            }
+            high = h;
+
+            cache = new Integer[(high - low) + 1];
+            int j = low;
+            for(int k = 0; k < cache.length; k++)
+                cache[k] = new Integer(j++);
+
+            // range [-128, 127] must be interned (JLS7 5.1.7)
+            assert IntegerCache.high >= 127;
+        }
+
+        private IntegerCache() {}
+    }
+```
+
+简单的说，如果字面量的值在-128 到 127 之间，那么不会 new 新的 Integer
+对象，而是直接引用常量池中的Integer对象，所以上面的面试题中f1==f2的
+结果是true，而 f3==f4的结果是 false。越是貌似简单的面试题其中的玄机就
+越多，需要面试者有相当深厚的功力。
+
+
+## &和&&的区别？
+答：`&`运算符有两种用法：(1)按位与；(2)逻辑与。`&&`运算符是**短路与运算**。
+
+逻辑与跟短路与的差别是非常巨大的，虽然二者都要求运算符左右两端的布尔值都是 true 整个表达式的值才是 `true`。`&&`之所以称为短路运算是因为，如果`&&`左边的表达式的值是 `false`，右边的表达式会被直接短路掉，不会进行运算。
+
+很多时候我们可能都需要用`&&`而不是`&`，例如在验证用户登录时判定用户名不是`null`而且不是空字符串，应当写为：`username != null &&!username.equals("")`，二者的顺序不能交换，更不能用&运算符，因为第一个条件如果不成立，根本不能进行字符串的`equals`比较，否则会产生`NullPointerException`异常。注意：逻辑或运算符（`|`）和短路或运算符（`||`）的差别也是如此。
+
+## 解释内存中的栈（stack）、堆(heap)和静态存储区的用法。
+
+答：通常我们定义一个基本数据类型的变量，一个对象的引用，还有就是函数调用的现场保存都使用内存中的栈空间；而通过`new` 关键字和构造器创建的对象放在堆空间；程序中的字面量（`literal`）如直接书写的`100`、`“hello”`和常量都是放在静态存储区中。栈空间操作最快但是也很小，通常大量的对象都是放在堆空间，**整个内存包括硬盘上的虚拟内存都可以被当成堆空间来使用**。
+
+`String str = new String(“hello”);`
+
+上面的语句中`str` 放在栈上，用`new`创建出来的字符串对象放在堆上，而“hel
+lo”这个字面量放在静态存储区。
+
+补充：较新版本的Java中使用了一项叫“逃逸分析“的技术，可以将一些局部
+对象放在栈上以提升对象的操作性能。
+
+
+## Math.round(11.5) 等于多少? Math.round(-11.5)等于多少?
+答：`Math.round(11.5)`的返回值是`12`，`Math.round(-11.5)`的返回值是`-11`。四
+舍五入的原理是在参数上加0.5然后进行下取整。
