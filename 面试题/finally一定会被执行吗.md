@@ -80,6 +80,10 @@ public class TestByte{
 
 ![](./image/finally运行字节码.png)
 
+JVM存储区域及JVM栈详解（栈帧结构）如下
+
+![](./image/栈帧结构.png)
+
 ----------------
 ----------------
 
