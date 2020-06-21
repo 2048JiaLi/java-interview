@@ -1,6 +1,88 @@
 ## Java中的finally一定会被执行吗？
 肯定不是。
 
+> 关于finally的一个问题
+```java
+public class TestByte{
+    
+    public static void main(String[] args) {
+        int result = m1();
+        System.out.println(result); // 输出30
+    }
+
+    public static int m1() {
+        
+        int a = 10;
+        try {
+            a = 20;
+            throw new RuntimeException();
+        } catch(Exception e) {
+            a = 30;
+            return a; // 将返回值保存，并没有结束方法
+        } finally {
+            a = 40;
+        }
+    }
+}
+```
+
+`javap -verbose TestByte`查看字节码（关注m1方法）如下：
+```java
+  public static int m1();
+    descriptor: ()I
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=4, args_size=0
+         0: bipush        10    
+         // 将10压入栈，  b-> byte,  i->int
+         2: istore_0            
+         // 将栈顶中的int值，保存在局部变量表下标0的位置（此时栈为空了），下标0
+         3: bipush        20
+         5: istore_0
+         // 同上，但是此时 10 被20覆盖了 ，下标0
+         6: new           #5                  // class java/lang/RuntimeException
+         // RuntimeException入栈
+         9: dup
+         // 复制栈顶元素，压栈， 栈中有两个RuntimeException
+        10: invokespecial #6                  // Method java/lang/RuntimeException."<init>":()V
+        // 初始化栈顶对象，调用其构造方法，
+        13: athrow
+        // a -> 表示对象，  将初始化完毕的栈顶异常对象抛出（此时栈中只剩一个RuntimeException）
+        14: astore_1
+        // 将栈顶中的对象（剩下的那一个RuntimeException）保存在局部变量表，下标1
+        15: bipush        30
+        // 30 入栈
+        17: istore_0
+        // 30 出栈，放到局部变量表下标0（覆盖了原数20）
+        18: iload_0
+        // 将局部变量表下标0位置的值，加载到栈顶
+        19: istore_2
+        // 栈顶的值，保存到局部变量表下标2位置（值30）
+        20: bipush        40
+        22: istore_0
+        // 值40放到下标0位置
+        23: iload_2
+        // 将存储了返回值的局部变量表中的值30加载到栈顶（下标2）
+        24: ireturn
+        // 结束当前方法，并携带栈顶中的int值返回
+        25: astore_3
+        26: bipush        40
+        28: istore_0
+        29: aload_3
+        30: athrow
+      Exception table: // 异常表，因异常而导致的分支流程
+         from    to  target type
+             3    14    14   Class java/lang/Exception
+             // 考虑到的异常（try异常），如果3-14异常，跳至14运行
+             3    20    25   any
+             // 3-20未知异常（catch也可能发生异常），跳至25运行
+```
+
+![](./image/finally运行字节码.png)
+
+----------------
+----------------
+
 1. 在执行`try`块之前直接`return`，我们发现`finally`块是不会执行的
 ```java
 public class TryCatchTest {
