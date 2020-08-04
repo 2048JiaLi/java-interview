@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajax</title>
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+    <div id="div1">
+        <table id="tb1">
+            <tr id="tr1">
+                <th>编号</th>
+                <th>姓名</th>
+                <th>密码</th>
+                <th>手机</th>
+                <th>权限</th>
+            </tr>
+        </table>
+    </div>
+<button onclick="check()">获取ajax数据</button>
+</body>
+    <script type="text/javascript">
+        function check() {
+            // 1. 创建XMLHttpRequest对象
+            var xhr = new XMLHttpRequest()
+
+            // 2. 设置回调函数
+            xhr.onreadystatechange = function (ev) {
+                if (xhr.readyState==4 && xhr.status==200) {
+                    // alert(xhr.responseText)
+                    if (xhr.responseText == "error") {
+                        alert("查询失败！")
+                    } else {
+                        // 每次进来都要清空之前数据
+                        var trs = $("#tr1~tr");
+                        trs.each(function (i) {
+                            trs[i].remove()
+                        });
+                        // var tb1 = document.getElementById("tb1");
+                        // if (tb1.rows.length > 1) {
+                        //     // 之前有数据，需要清除除第一行之外的所有
+                        // }
+
+                        // alert(xhr.responseText)
+                        var objs = JSON.parse(xhr.responseText);
+                        // js的foreach
+                        $(objs).each(function (i) {
+                            // 创建标签
+                            var tr = document.createElement("tr");
+                            var td_id = document.createElement("td");
+                            var td_name = document.createElement("td");
+                            var td_pwd = document.createElement("td");
+                            var td_phone = document.createElement("td");
+                            var td_access = document.createElement("td");
+                            // 追加
+                            td_id.innerText = objs[i].id;
+                            tr.append(td_id);
+
+                            td_name.innerText = objs[i].username;
+                            tr.append(td_name);
+
+                            td_pwd.innerText = objs[i].password;
+                            tr.append(td_pwd);
+
+                            td_phone.innerText = objs[i].phone;
+                            tr.append(td_phone);
+
+                            td_access.innerText = objs[i].access;
+                            tr.append(td_access);
+
+                            $("#tb1").append(tr);
+                        })
+
+
+                    }
+                }
+            }
+
+            // 3. 打开连接
+            xhr.open("GET","/getall",true)
+
+            // 4. 发送
+            xhr.send()
+        }
+    </script>
+</html>
