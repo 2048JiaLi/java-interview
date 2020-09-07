@@ -413,3 +413,150 @@ public Object aroundPrintLog(ProceedingJoinPoint joinPoint){
 }
 ```
 
+## 注解AOP
+
+### XML配置
+
+```xml
+<?xml version = "1.0" encoding = "UTF-8"?>
+<beans xmlns = "http://www.springframework.org/schema/beans"
+       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop = "http://www.springframework.org/schema/aop"
+       xmlns:context = "http://www.springframework.org/schema/context"
+       xsi:schemaLocation = "http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/aop
+   http://www.springframework.org/schema/aop/spring-aop.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--配置spring创建容器时扫描的包-->
+    <context:component-scan base-package="demo"/>
+
+    <!--配置spring开始注解AOP支持-->
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+</beans>
+```
+
+### 增强类注解
+
+```java
+package demo.utils;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
+import org.springframework.stereotype.Component;
+
+/**
+ * 记录日志的工具类，提供公共的代码
+ */
+@Component("logger")
+@Aspect//当前类是切面
+public class Logger {
+    @Pointcut("execution(* demo.service.impl.*.*(..))")
+    private void pt(){}
+
+    /**
+     * 前置通知：
+     * 打印日志：在切入点方法执行之前执行（切入点方法就是业务层方法）
+     */
+    @Before("pt()")
+    public void beforePrintLog(){
+        System.out.println("前置通知：Logger类中beforePrintLog开始记录日志。。。");
+    }
+
+    /**
+     * 后置通知：
+     */
+    @AfterReturning("pt()")
+    public void afterReturningPrintLog(){
+        System.out.println("后置通知：Logger类中afterReturningPrintLog开始记录日志。。。");
+    }
+
+    /**
+     * 异常通知：
+     */
+    @AfterThrowing("pt()")
+    public void afterThrowingPrintLog(){
+        System.out.println("异常通知：Logger类中afterThrowingPrintLog开始记录日志。。。");
+    }
+
+    /**
+     * 最终通知：
+     */
+    @After("pt()")
+    public void afterPrintLog(){
+        System.out.println("最终通知：Logger类中afterPrintLog开始记录日志。。。");
+    }
+
+    /**
+     * 环绕通知
+     * 问题：
+     *      当配置了环绕通知之后，切入点方法没有执行，而通知方法被执行了。
+     * 分析：
+     *      对比动态代理的环绕通知，发现动态代理中的环绕通知有明确的切入点方法调用。而我们的代码没有
+     * 解决：
+     *      Spring框架提供了一个接口：ProceedingJointPoint。该接口方法proceed()相当于明确调用切入点方法。
+     *      该接口作为环绕通知的方法参数，在程序执行时，Spring框架会为我们提供该接口的实现类
+     *
+     * Spring的环绕通知：
+     *      是Spring框架为我们提供的一种可以在代码中手动控制增强方法何时执行的方式
+     */
+    @Around("pt()")
+    public Object aroundPrintLog(ProceedingJoinPoint joinPoint){
+        Object returnValue = null;
+        try {
+            // 方法所需参数
+            Object[] args = joinPoint.getArgs();
+
+            System.out.println("环绕通知：Logger类中aroundPrintLog开始记录日志。。。前置");
+
+            // 明确调用业务层切入点方法
+            returnValue = joinPoint.proceed();
+
+            System.out.println("环绕通知：Logger类中aroundPrintLog开始记录日志。。。后置");
+
+            return returnValue;
+        } catch (Throwable throwable) {
+            System.out.println("环绕通知：Logger类中aroundPrintLog开始记录日志。。。异常");
+            throw new RuntimeException(throwable);
+        } finally {
+            System.out.println("环绕通知：Logger类中aroundPrintLog开始记录日志。。。最终");
+        }
+    }
+}
+```
+
+### 业务层注解
+
+```java
+package demo.service.impl;
+
+import demo.service.IAccountService;
+import org.springframework.stereotype.Service;
+
+/**
+ * @date 2020/9/5 14:49
+ */
+@Service("accountService")
+public class AccountServiceImpl implements IAccountService {
+
+    public void saveAccount() {
+        System.out.println("保存账户。。。");
+//        int a = 1/0;
+    }
+
+    public void updateAccount(int id) {
+        System.out.println("更新账户。。。"+id);
+    }
+
+    public int deleteAccount() {
+        System.out.println("删除账户。。。");
+        return 0;
+    }
+}
+```
+
+### pom依赖
+
+与上面相同
