@@ -56,7 +56,7 @@ Tomcat压缩版，解压即可
 
 #### work：运行时产生的文件，最终运行的文件都在该目录。
 
-通过webapps中的项目生成的！可以把这个目录下的内容删除，再次运行时会再次生成work目录。当客户端访问一个JSP文件时，Tomcat会通过JSP生成Java文件，然后再编译Java文件生成class文件，生成的java和class文件都会放到这个目录下。
+通过webapps中的项目生成的！可以把这个目录下的内容删除，再次运行时会再次生成work目录。当客户端访问一个JSP文件时，Tomcat会通过JSP生成Java文件，然后再编译Java文件生成class文件，**生成的java和class文件都会放到这个目录下**。
 
 #### LICENSE：许可证
 
