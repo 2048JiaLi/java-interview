@@ -100,3 +100,107 @@ JSP有9个内置对象：
 - exception：封装页面抛出异常的对象。
 
 > JSP九大内置对象，七大动作，三大指令：https://blog.csdn.net/qq_34337272/article/details/64310849
+
+## request.getAttribute()和 request.getParameter()有何区别
+
+**从获取方向来看：**
+
+`getParameter()`是获取 POST/GET 传递的参数值；
+
+`getAttribute()`是获取对象容器中的数据值；
+
+**从用途来看：**
+
+`getParameter()`用于客户端重定向时，即点击了链接或提交按扭时传值用，即用于在用表单或url重定向传值时接收数据用。
+
+`getAttribute()` 用于服务器端重定向时，即在 sevlet 中使用了 forward 函数,或 struts 中使用了 mapping.findForward。 getAttribute 只能收到程序用 setAttribute 传过来的值。
+
+另外，可以用 `setAttribute()`,`getAttribute()` 发送接收对象.而 `getParameter()` 显然只能传字符串。 `setAttribute()` 是应用服务器把这个对象放在该页面所对应的一块内存中去，当你的页面服务器重定向到另一个页面时，应用服务器会把这块内存拷贝另一个页面所对应的内存中。这样`getAttribute()`就能取得你所设下的值，当然这种方法可以传对象。session也一样，只是对象在内存中的生命周期不一样而已。`getParameter()`只是应用服务器在分析你送上来的 request页面的文本时，取得你设在表单或 url 重定向时的值。
+
+**总结：**
+
+`getParameter()`返回的是String,用于读取提交的表单中的值;（获取之后会根据实际需要转换为自己需要的相应类型，比如整型，日期类型啊等等）
+
+`getAttribute()`返回的是Object，需进行转换,可用`setAttribute()`设置成任意对象，使用很灵活，可随时用
+
+## 讲解JSP中的四种作用域
+
+JSP中的四种作用域包括page、request、session和application，具体来说：
+
+- **page**代表与一个页面相关的对象和属性。
+- **request**代表与Web客户机发出的一个请求相关的对象和属性。一个请求可能跨越多个页面，涉及多个Web组件；需要在页面显示的临时数据可以置于此作用域。
+- **session**代表与某个用户与服务器建立的一次会话相关的对象和属性。跟某个用户相关的数据应该放在用户自己的session中。
+- **application**代表与整个Web应用程序相关的对象和属性，它实质上是跨越整个Web应用程序，包括多个页面、请求和会话的一个全局作用域。
+
+## 如何实现JSP或Servlet的单线程模式
+
+对于JSP页面，可以通过page指令进行设置。 `<%@page isThreadSafe="false"%>`
+
+对于Servlet，可以让自定义的Servlet实现SingleThreadModel标识接口。
+
+说明：如果将JSP或Servlet设置成单线程工作模式，会导致每个请求创建一个Servlet实例，这种实践将导致严重的性能问题（服务器的内存压力很大，还会导致频繁的垃圾回收），所以通常情况下并不会这么做。
+
+## 实现会话跟踪的技术有哪些
+
+1. **使用Cookie**
+
+向客户端发送Cookie
+
+```java
+Cookie c =new Cookie("name","value"); //创建Cookie 
+c.setMaxAge(60*60*24); //设置最大时效，此处设置的最大时效为一天
+response.addCookie(c); //把Cookie放入到HTTP响应中
+```
+
+从客户端读取Cookie
+
+```java
+String name ="name"; 
+Cookie[]cookies =request.getCookies(); 
+if(cookies !=null){ 
+   for(int i= 0;i<cookies.length;i++){ 
+    Cookie cookie =cookies[i]; 
+    if(name.equals(cookis.getName())) 
+    //something is here. 
+    //you can get the value 
+    cookie.getValue(); 
+   }
+ }
+```
+
+**优点:** 数据可以持久保存，不需要服务器资源，简单，基于文本的Key-Value
+
+**缺点:** 大小受到限制，用户可以禁用Cookie功能，由于保存在本地，有一定的安全风险。
+
+1. URL 重写
+
+在URL中添加用户会话的信息作为请求的参数，或者将唯一的会话ID添加到URL结尾以标识一个会话。
+
+**优点：** 在Cookie被禁用的时候依然可以使用
+
+**缺点：** 必须对网站的URL进行编码，所有页面必须动态生成，不能用预先记录下来的URL进行访问。
+
+3.隐藏的表单域
+
+```
+<input type="hidden" name ="session" value="..."/>
+```
+
+**优点：** Cookie被禁时可以使用
+
+**缺点：** 所有页面必须是表单提交之后的结果。
+
+1. HttpSession
+
+在所有会话跟踪技术中，HttpSession对象是最强大也是功能最多的。当一个用户第一次访问某个网站时会自动创建 HttpSession，每个用户可以访问他自己的HttpSession。可以通过HttpServletRequest对象的getSession方 法获得HttpSession，通过HttpSession的setAttribute方法可以将一个值放在HttpSession中，通过调用 HttpSession对象的getAttribute方法，同时传入属性名就可以获取保存在HttpSession中的对象。与上面三种方式不同的 是，HttpSession放在服务器的内存中，因此不要将过大的对象放在里面，即使目前的Servlet容器可以在内存将满时将HttpSession 中的对象移到其他存储设备中，但是这样势必影响性能。添加到HttpSession中的值可以是任意Java对象，这个对象最好实现了 Serializable接口，这样Servlet容器在必要的时候可以将其序列化到文件中，否则在序列化时就会出现异常。
+
+## Cookie和Session的的区别
+
+Cookie 和 Session都是用来跟踪浏览器用户身份的会话方式，但是两者的应用场景不太一样。
+
+**Cookie 一般用来保存用户信息** 比如①我们在 Cookie 中保存已经登录过得用户信息，下次访问网站的时候页面可以自动帮你登录的一些基本信息给填了；②一般的网站都会有保持登录也就是说下次你再访问网站的时候就不需要重新登录了，这是因为用户登录的时候我们可以存放了一个 Token 在 Cookie 中，下次登录的时候只需要根据 Token 值来查找用户即可(为了安全考虑，重新登录一般要将 Token 重写)；③登录一次网站后访问网站其他页面不需要重新登录。**Session 的主要作用就是通过服务端记录用户的状态。** 典型的场景是购物车，当你要添加商品到购物车的时候，系统不知道是哪个用户操作的，因为 HTTP 协议是无状态的。服务端给特定的用户创建特定的 Session 之后就可以标识这个用户并且跟踪这个用户了。
+
+Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。
+
+Cookie 存储在客户端中，而Session存储在服务器上，相对来说 Session 安全性更高。如果使用 Cookie 的一些敏感信息不要写入 Cookie 中，最好能将 Cookie 信息加密然后使用到的时候再去服务器端解密。
+
