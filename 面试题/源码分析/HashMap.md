@@ -371,7 +371,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                         treeifyBin(tab, hash);
                     break;
                 }
-                // 判断链表中结点的key值与插入的元素的key值是否相等
+                // 判断链表中结点的key值与插入的元素的key值是否相等，如果hash值，及equals都相等，直接break
                 if (e.hash == hash &&
                     ((k = e.key) == key || (key != null && key.equals(k))))
                     break;
