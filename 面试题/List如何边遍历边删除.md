@@ -61,7 +61,7 @@ public static void main(String[] args) {
 > ![](../面试题/image/2020_05_30image2.jpg) 
 
 
-### 使用for循环倒序遍历 -- 避免正序遍历修正下标问题
+### 3. 使用for循环倒序遍历 -- 避免正序遍历修正下标问题
 ```java
 public static void main(String[] args) {
     List<String> platformList = new ArrayList<>();
