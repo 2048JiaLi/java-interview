@@ -441,8 +441,12 @@ HashMap 底层是 hash 数组和单向链表实现，数组中的每个元素都
 
 **1、**调用 hash(K) 方法计算 K 的 hash 值，然后结合数组长度，计算得数组下标；
 **2、**调整数组大小（当容器中的元素个数大于 capacity * loadfactor 时，容器会进行扩容resize 为 2n）；
-**3、**i.如果 K 的 hash 值在 HashMap 中不存在，则执行插入，若存在，则发生碰撞；
-ii.如果 K 的 hash 值在 HashMap 中存在，且它们两者 equals 返回 true，则更新键值对；iii. 如果 K 的 hash 值在 HashMap 中存在，且它们两者 equals 返回 false，则插入链表的尾部（尾插法）或者红黑树中（树的添加方式）。
+**3、**
+
+i.如果 K 的 hash 值在 HashMap 中不存在，则执行插入，若存在，则发生碰撞；
+ii.如果 K 的 hash 值在 HashMap 中存在，且它们两者 equals 返回 true，则更新键值对；
+
+iii. 如果 K 的 hash 值在 HashMap 中存在，且它们两者 equals 返回 false，则插入链表的尾部（尾插法）或者红黑树中（树的添加方式）。
 
 > （JDK 1.7 之前使用头插法、JDK 1.8 使用尾插法） 
 >
